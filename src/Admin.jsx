@@ -109,7 +109,6 @@ const Admin = () => {
   return (
     <Box>
       <Box p={1} display={"flex"} gap={1} height={"100vh"}>
-        {/* left */}
         <Stack gap={1} flex={1} minHeight={0}>
           <Box flex={1} position={"relative"} minHeight={"50vh"}>
             <img
@@ -137,17 +136,18 @@ const Admin = () => {
                   <circle
                     cx={value.x}
                     cy={value.y}
-                    r={key === selectedNode ? 10 : 5}
+                    r={key === selectedNode ? 10 : 6}
                     strokeWidth={2}
-                    stroke={key === selectedNode ? "black" : "transparent"}
-                    fill={key === selectedNode ? "yellow" : "#000"}
+                    stroke={key === selectedNode ? "black" : "red"}
+                    fill={key === selectedNode ? "yellow" : "blue"}
                   />
                   <text
                     x={value.x}
-                    y={value.y - 10} // Position text above the circle
+                    y={value.y - 10}
                     textAnchor="middle"
-                    fontSize="12px"
+                    fontSize="13px"
                     fill="black"
+                    fontWeight={"bold"}
                   >
                     {value.name}
                   </text>
@@ -195,7 +195,6 @@ const Admin = () => {
           </Box>
         </Stack>
 
-        {/* right */}
         <Box flex={1}>
           <Button
             variant="contained"

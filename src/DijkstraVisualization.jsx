@@ -20,7 +20,6 @@ const DijkstraVisualization = () => {
   const [endNode, setEndNode] = useState("node_1722970276414");
   const [animationFrameId, setAnimationFrameId] = useState(null);
 
-  console.log(steps);
   const graph = {};
   for (const node in edgesData) {
     graph[node] = edgesData[node].map((edge) => ({
@@ -216,9 +215,6 @@ const DijkstraVisualization = () => {
       <Stack gap={2} width={"10%"} p={1}>
         <Button variant="contained" onClick={findPath}>
           Show Path
-        </Button>
-        <Button variant="contained" onClick={() => setCurrentStep(0)}>
-          Reset
         </Button>
       </Stack>
     </Box>
