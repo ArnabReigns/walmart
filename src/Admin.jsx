@@ -108,7 +108,7 @@ const Admin = () => {
 
   return (
     <Box>
-      <Box p={1} display={"flex"} gap={1} height={"100vh"}>
+      <Box display={"flex"} gap={1} height={"100vh"}>
         <Stack gap={1} flex={1} minHeight={0}>
           <Box flex={1} position={"relative"} minHeight={"50vh"}>
             <img

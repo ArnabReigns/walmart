@@ -1,24 +1,37 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import edgesData from "./edges.json";
 import nodesData from "./nodes.json";
+import productsData from "./products.json";
 import { dijkstra } from "./Graph";
 import {
   Box,
   Button,
   FormControl,
   InputLabel,
-  Select,
   MenuItem,
   Stack,
+  TextField,
+  Autocomplete,
 } from "@mui/material";
 import img from "@/assets/img.png";
 
 const DijkstraVisualization = () => {
   const [steps, setSteps] = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
-  const [startNode, setStartNode] = useState("node_1722970234708");
-  const [endNode, setEndNode] = useState("node_1722970276414");
+  const [startProduct, setStartProduct] = useState(null);
+  const [endProduct, setEndProduct] = useState(null);
+  const [startNode, setStartNode] = useState(null);
+  const [endNode, setEndNode] = useState(null);
   const [animationFrameId, setAnimationFrameId] = useState(null);
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const productsArray = Object.keys(productsData).map((key) => ({
+      name: key,
+      ...productsData[key],
+    }));
+    setProducts(productsArray);
+  }, []);
 
   const graph = {};
   for (const node in edgesData) {
@@ -39,23 +52,25 @@ const DijkstraVisualization = () => {
   }
 
   const findPath = () => {
-    const result = dijkstra(graph, startNode, endNode);
-    setSteps(result.steps);
-    setCurrentStep(0);
+    if (startNode && endNode) {
+      const result = dijkstra(graph, startNode, endNode);
+      setSteps(result.steps);
+      setCurrentStep(0);
 
-    let stepIndex = 0;
+      let stepIndex = 0;
 
-    const animate = () => {
-      stepIndex++;
-      if (stepIndex < result.steps.length) {
-        setCurrentStep(stepIndex);
-        setAnimationFrameId(requestAnimationFrame(animate));
-      } else {
-        cancelAnimationFrame(animationFrameId);
-      }
-    };
+      const animate = () => {
+        stepIndex++;
+        if (stepIndex < result.steps.length) {
+          setCurrentStep(stepIndex);
+          setAnimationFrameId(requestAnimationFrame(animate));
+        } else {
+          cancelAnimationFrame(animationFrameId);
+        }
+      };
 
-    setAnimationFrameId(requestAnimationFrame(animate));
+      setAnimationFrameId(requestAnimationFrame(animate));
+    }
   };
 
   useEffect(() => {
@@ -152,12 +167,14 @@ const DijkstraVisualization = () => {
     return pathEdges;
   };
 
-  const handleStartNodeChange = (event) => {
-    setStartNode(event.target.value);
-  };
-
-  const handleEndNodeChange = (event) => {
-    setEndNode(event.target.value);
+  const handleProductChange = (event, newValue, field) => {
+    if (field === "start") {
+      setStartProduct(newValue);
+      setStartNode(newValue ? newValue.node_id : null);
+    } else {
+      setEndProduct(newValue);
+      setEndNode(newValue ? newValue.node_id : null);
+    }
   };
 
   return (
@@ -181,34 +198,38 @@ const DijkstraVisualization = () => {
       </Box>
 
       <Box>
-        <FormControl sx={{ m: 1, minWidth: 120 }}>
-          <InputLabel>Your Location</InputLabel>
-          <Select
-            value={startNode}
-            onChange={handleStartNodeChange}
-            label="Your Location"
-          >
-            {Object.keys(nodes).map((nodeId) => (
-              <MenuItem key={nodeId} value={nodeId}>
-                {nodes[nodeId]?.name || nodeId}
-              </MenuItem>
-            ))}
-          </Select>
+        <FormControl sx={{ m: 1, minWidth: 300 }}>
+          <Autocomplete
+            options={products}
+            getOptionLabel={(option) => option.name}
+            onChange={(event, newValue) =>
+              handleProductChange(event, newValue, "start")
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Current Product"
+                variant="outlined"
+              />
+            )}
+          />
         </FormControl>
 
-        <FormControl sx={{ m: 1, minWidth: 120 }}>
-          <InputLabel>Desired Location</InputLabel>
-          <Select
-            value={endNode}
-            onChange={handleEndNodeChange}
-            label="Desired Location"
-          >
-            {Object.keys(nodes).map((nodeId) => (
-              <MenuItem key={nodeId} value={nodeId}>
-                {nodes[nodeId]?.name || nodeId}
-              </MenuItem>
-            ))}
-          </Select>
+        <FormControl sx={{ m: 1, minWidth: 300 }}>
+          <Autocomplete
+            options={products}
+            getOptionLabel={(option) => option.name}
+            onChange={(event, newValue) =>
+              handleProductChange(event, newValue, "end")
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Desired Product"
+                variant="outlined"
+              />
+            )}
+          />
         </FormControl>
       </Box>
 
