@@ -7,8 +7,6 @@ import {
   Box,
   Button,
   FormControl,
-  InputLabel,
-  MenuItem,
   Stack,
   TextField,
   Autocomplete,
@@ -93,52 +91,55 @@ const DijkstraVisualization = () => {
     }
   }, [steps]);
 
-  const renderEdges = () => {
-    const edges = [];
-    for (const node in graph) {
-      graph[node].forEach((neighbor) => {
-        edges.push(
-          <g key={`${node}-${neighbor.node}`}>
-            <line
-              x1={nodes[node]?.x || 0}
-              y1={nodes[node]?.y || 0}
-              x2={nodes[neighbor.node]?.x || 0}
-              y2={nodes[neighbor.node]?.y || 0}
-              stroke="gray"
-              strokeWidth="2"
-            />
-          </g>
-        );
-      });
-    }
-    return edges;
-  };
-
   const renderNodes = () => {
-    return Object.keys(nodes).map((nodeId) => (
-      <g key={nodeId}>
-        <circle
-          cx={nodes[nodeId]?.x || 0}
-          cy={nodes[nodeId]?.y || 0}
-          r="15"
-          fill={
-            steps[currentStep] && steps[currentStep].includes(nodeId)
-              ? "green"
-              : "blue"
-          }
-        />
-        <text
-          x={nodes[nodeId]?.x || 0}
-          y={nodes[nodeId]?.y || 0}
-          textAnchor="middle"
-          alignmentBaseline="middle"
-          fill="white"
-          fontSize="12"
-        >
-          {nodes[nodeId]?.name || ""}
-        </text>
-      </g>
-    ));
+    if (!startNode && !endNode) {
+      return null;
+    }
+
+    return (
+      <>
+        {startNode && (
+          <g key={startNode}>
+            <circle
+              cx={nodes[startNode]?.x || 0}
+              cy={nodes[startNode]?.y || 0}
+              r="15"
+              fill="blue"
+            />
+            <text
+              x={nodes[startNode]?.x || 0}
+              y={nodes[startNode]?.y || 0}
+              textAnchor="middle"
+              alignmentBaseline="middle"
+              fill="white"
+              fontSize="12"
+            >
+              {nodes[startNode]?.name || ""}
+            </text>
+          </g>
+        )}
+        {endNode && (
+          <g key={endNode}>
+            <circle
+              cx={nodes[endNode]?.x || 0}
+              cy={nodes[endNode]?.y || 0}
+              r="15"
+              fill="red"
+            />
+            <text
+              x={nodes[endNode]?.x || 0}
+              y={nodes[endNode]?.y || 0}
+              textAnchor="middle"
+              alignmentBaseline="middle"
+              fill="white"
+              fontSize="12"
+            >
+              {nodes[endNode]?.name || ""}
+            </text>
+          </g>
+        )}
+      </>
+    );
   };
 
   const renderPath = () => {
@@ -158,7 +159,7 @@ const DijkstraVisualization = () => {
             y1={nodes[fromNode].y}
             x2={nodes[toNode].x}
             y2={nodes[toNode].y}
-            stroke="red"
+            stroke="green"
             strokeWidth="4"
           />
         );
@@ -171,10 +172,15 @@ const DijkstraVisualization = () => {
     if (field === "start") {
       setStartProduct(newValue);
       setStartNode(newValue ? newValue.node_id : null);
+      setEndProduct(null);
+      setEndNode(null);
     } else {
       setEndProduct(newValue);
       setEndNode(newValue ? newValue.node_id : null);
     }
+
+    setSteps([]);
+    setCurrentStep(0);
   };
 
   return (
@@ -191,7 +197,6 @@ const DijkstraVisualization = () => {
           }}
         />
         <svg height={"100%"} width={"100%"}>
-          {renderEdges()}
           {renderPath()}
           {renderNodes()}
         </svg>
@@ -201,10 +206,15 @@ const DijkstraVisualization = () => {
         <FormControl sx={{ m: 1, minWidth: 300 }}>
           <Autocomplete
             options={products}
-            getOptionLabel={(option) => option.name}
+            getOptionLabel={(option) =>
+              `${option.name} (Block ${
+                nodes[option.node_id]?.name || "Unknown"
+              })`
+            }
             onChange={(event, newValue) =>
               handleProductChange(event, newValue, "start")
             }
+            value={startProduct}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -215,22 +225,31 @@ const DijkstraVisualization = () => {
           />
         </FormControl>
 
-        <FormControl sx={{ m: 1, minWidth: 300 }}>
-          <Autocomplete
-            options={products}
-            getOptionLabel={(option) => option.name}
-            onChange={(event, newValue) =>
-              handleProductChange(event, newValue, "end")
-            }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Desired Product"
-                variant="outlined"
-              />
-            )}
-          />
-        </FormControl>
+        {startNode && (
+          <FormControl sx={{ m: 1, minWidth: 300 }}>
+            <Autocomplete
+              options={products.filter(
+                (product) => product.node_id !== startNode
+              )}
+              getOptionLabel={(option) =>
+                `${option.name} (Block ${
+                  nodes[option.node_id]?.name || "Unknown"
+                })`
+              }
+              onChange={(event, newValue) =>
+                handleProductChange(event, newValue, "end")
+              }
+              value={endProduct}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Desired Product"
+                  variant="outlined"
+                />
+              )}
+            />
+          </FormControl>
+        )}
       </Box>
 
       <Stack gap={2} width={"10%"} p={1}>
