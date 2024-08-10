@@ -165,8 +165,9 @@ const App = () => {
               })}
             </svg>
           </Box>
-          <Box flex={1} height={0}>
+          <Box flex={1} height={"10rem"} bgcolor={"red"}>
             <DataGrid
+              autoHeight
               rows={rows}
               disableColumnResize
               experimentalFeatures={{ newEditingApi: true }}
